@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: com.example.sdk.OpenAICodeReview
+Main-Class: com.example.sdk.OpenAiCodeReview
