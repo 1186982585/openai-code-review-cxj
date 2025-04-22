@@ -1,4 +1,4 @@
-name: Run java Git Diff By Local
+  name: Run java Git Diff By Local
 
 on:
   push:
