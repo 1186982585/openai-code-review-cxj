@@ -3,10 +3,10 @@
 on:
   push:
     branches:
-      - '*' #可以配置别的分支,比如master
+      - master-close #可以配置别的分支,比如master
   pull_request:
     branches:
-      - '*' #同上
+      - close #同上
 
 jobs:
   build-and-run:
