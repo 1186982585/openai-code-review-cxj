@@ -6,7 +6,7 @@ on:
       - master-close #可以配置别的分支,比如master
   pull_request:
     branches:
-      - close #同上
+      - master-close #同上
 
 jobs:
   build-and-run:
