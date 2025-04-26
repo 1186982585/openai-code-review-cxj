@@ -18,7 +18,7 @@ public class ApiTest {
 
     @Test
     public void test() {
-        System.out.println("12345");
+        System.out.println("abc12345");
         System.out.println("test2");
         System.out.println("test3");
     }
