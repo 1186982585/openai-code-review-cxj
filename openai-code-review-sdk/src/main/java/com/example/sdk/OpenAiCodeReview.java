@@ -5,12 +5,18 @@ import com.example.sdk.domain.model.ChatCompletionRequest;
 import com.example.sdk.domain.model.ChatCompletionSyncResponse;
 import com.example.sdk.domain.model.Model;
 import com.example.sdk.types.utils.BearerTokenUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * @Author cxj
@@ -19,8 +25,13 @@ import java.util.ArrayList;
  */
 public class OpenAiCodeReview {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("测试执行");
+    public static void main(String[] args) throws IOException, InterruptedException, GitAPIException {
+        System.out.println("openai 代码评审，测试执行");
+
+        String token = System.getenv("GITHUB_TOKEN");
+        if (null == token || token.isEmpty()){
+            throw new RuntimeException("token is null");
+        }
 
         // 1.代码检出
         ProcessBuilder processBuilder = new ProcessBuilder("git", "diff", "HEAD~1", "HEAD");
@@ -44,6 +55,8 @@ public class OpenAiCodeReview {
         // 2. chatglm 代码评审
         String log = codeReview(diffCode.toString());
         System.out.println("code review:" + log);
+
+        writeLog(token, log);
 
     }
 
@@ -105,6 +118,43 @@ public class OpenAiCodeReview {
         ChatCompletionSyncResponse response = JSON.parseObject(content.toString(), ChatCompletionSyncResponse.class);
 //        System.out.println(response.getChoices().get(0).getMessage().getContent());
         return response.getChoices().get(0).getMessage().getContent();
+    }
+
+    private static String writeLog(String token, String log) throws GitAPIException, IOException {
+
+        Git git = Git.cloneRepository()
+                .setURI("https://github.com/1186982585/openai-code-review-log")
+                .setDirectory(new File("repo"))
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+                .call();
+
+        String dateFolderName = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        File dateFolder = new File("repo/" + dateFolderName);
+        if (!dateFolder.exists()) {
+            dateFolder.mkdirs();
+        }
+
+        String fileName = generateRandomString(12) + ".md";
+        File newFile = new File(dateFolder, fileName);
+        try(FileWriter writer = new FileWriter(newFile)) {
+            writer.write(log);
+        }
+
+        git.add().addFilepattern(dateFolderName + "/" + fileName).call();
+        git.commit().setMessage("Add new file").call();
+        git.push().setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, "")).call();
+
+        return "https://github.com/1186982585/openai-code-review-log/blob/master/"+dateFolderName+"/"+fileName;
+    }
+
+    private static String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return sb.toString();
     }
 
 }
