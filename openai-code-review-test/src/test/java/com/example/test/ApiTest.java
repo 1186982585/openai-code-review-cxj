@@ -18,8 +18,6 @@ public class ApiTest {
 
     @Test
     public void test() {
-        System.out.println("dddd");
-        System.out.println("test2");
-        System.out.println("test3");
+        System.out.println("1234");
     }
 }
