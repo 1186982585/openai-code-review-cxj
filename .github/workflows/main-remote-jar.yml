@@ -24,11 +24,12 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Build with Maven
-        run: mvn clean install
 
-      - name: Copy openai-code-review-sdk JAR
-        run: mvn dependency:copy -Dartifact=com.example:openai-code-review-sdk:1.0 -DoutputDirectory=./libs
+      - name: Create libs directory
+        run: mkdir -p ./libs
+
+      - name: Download openai-code-review-sdk JAR
+        run: wget -0 ./libs/openai-code-review-sdk-1.0.jar https://github.com/1186982585/openai-code-review-cxj/releases/download/v1.0/openai-code-review-sdk-1.0.jar
 
 
       - name: Get repository name
@@ -53,7 +54,7 @@ jobs:
           echo "Branch name is ${{ env.BRANCH_NAME }}"
           echo "Commit author is ${{ env.COMMIT_AUTHOR }}"
           echo "Commit message is ${{ env.COMMIT_MESSAGE }}"
-          
+
 
       - name: Run code Review
         run: java -jar ./libs/openai-code-review-sdk-1.0.jar
