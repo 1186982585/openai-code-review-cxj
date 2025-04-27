@@ -1,8 +1,8 @@
-package com.example.sdk.domain.model;
+package com.example.sdk.infrastructure.openai.dto;
 
 import java.util.List;
 
-public class ChatCompletionSyncResponse {
+public class ChatCompletionSyncResponseDTO {
 
     private List<Choice> choices;
 
